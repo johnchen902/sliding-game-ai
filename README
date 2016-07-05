@@ -1,0 +1,17 @@
+Sliding Game AI
+---
+
+Examples: Tower of Savior, Puzzle and Dragons.
+
+Compiled with g++ 6.1.1 on my machine
+
+Depends on ncurses (6.0-4 on my machine)
+
+---
+
+Copyright (C) 2016 Pochang Chen (johnchen902)
+This software comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to
+redistribute it under certain conditions.
+See the GNU General Public License for more details.
+
