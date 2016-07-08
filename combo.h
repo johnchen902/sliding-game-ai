@@ -20,11 +20,31 @@
 #define COMBO_H
 #include "data.h"
 #include <bitset>
+#include <type_traits>
 
 template<unsigned w, typename Bitset>
 Bitset neighbor_mask(Bitset m) {
     return m << (w + 2) | m << 1 | m | m >> 1 | m >> (w + 2);
 }
+
+template<typename T, unsigned n>
+class uninitialized_array {
+    std::aligned_storage_t<sizeof(T), alignof(T)> data[n];
+public:
+    template<typename ...Args>
+    void emplace(unsigned i, Args &&...args) {
+        new (data + i) T (std::forward<Args>(args)...);
+    }
+    const T& operator [](unsigned i) const {
+        return reinterpret_cast<const T&>(data[i]);
+    }
+    T& operator [](unsigned i) {
+        return reinterpret_cast<T&>(data[i]);
+    }
+    void destroy(unsigned i) {
+        reinterpret_cast<const T*>(data + i)->~T();
+    }
+};
 
 template<typename Board>
 unsigned count_basic_combo(const Board &board) {
@@ -34,7 +54,7 @@ unsigned count_basic_combo(const Board &board) {
 
     using Mask = std::bitset<(w + 2) * h - 2>;
     cell_t cells[max_c]; // uninitialized
-    Mask masks[max_c];
+    uninitialized_array<Mask, max_c> masks;
     unsigned combos = 0;
 
     for(unsigned i = 0; i < h; i++)
@@ -42,6 +62,8 @@ unsigned count_basic_combo(const Board &board) {
             if(board[i][j] == board[i][j + 1] &&
                     board[i][j + 1] == board[i][j + 2]) {
                 cells[combos] = board[i][j];
+                // undefined w/o constructing but seems to work
+                // masks.emplace(combos);
                 masks[combos].reset();
                 masks[combos][i * (w + 2) + j] = true;
                 masks[combos][i * (w + 2) + j + 1] = true;
@@ -53,6 +75,8 @@ unsigned count_basic_combo(const Board &board) {
             if(board[i][j] == board[i + 1][j] &&
                     board[i + 1][j] == board[i + 2][j]) {
                 cells[combos] = board[i][j];
+                // undefined w/o constructing but seems to work
+                // masks.emplace(combos);
                 masks[combos].reset();
                 masks[combos][i * (w + 2) + j] = true;
                 masks[combos][(i + 1) * (w + 2) + j] = true;
@@ -71,6 +95,11 @@ unsigned count_basic_combo(const Board &board) {
             }
         }
     }
+
+    // why bother when not even properly constructing
+    // for(unsigned i = 0; i < combos; i++)
+        // masks.destroy(i);
+
     return count;
 }
 
