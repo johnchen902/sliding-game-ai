@@ -34,7 +34,7 @@ score_t dfs(Result<Board> &res, score_t limit,
         unsigned r, unsigned c, Callback callback);
 
 template<typename Callback, typename Board>
-void dfs1(Result<Board> &res, score_t limit,
+inline void dfs1(Result<Board> &res, score_t limit,
         unsigned r1, unsigned c1, Callback callback,
         unsigned r, unsigned c, score_t& reject, direction_t dir) {
     using std::swap;

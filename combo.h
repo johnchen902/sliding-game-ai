@@ -28,8 +28,8 @@ Bitset neighbor_mask(Bitset m) {
 
 template<typename Board>
 unsigned count_basic_combo(const Board &board) {
-    constexpr unsigned w = board.width();
-    constexpr unsigned h = board.height();
+    constexpr unsigned w = Board::width();
+    constexpr unsigned h = Board::height();
     constexpr unsigned max_c = w * (h - 2) + h * (w - 2);
 
     using Mask = std::bitset<(w + 2) * h - 2>;
@@ -42,16 +42,18 @@ unsigned count_basic_combo(const Board &board) {
             if(board[i][j] == board[i][j + 1] &&
                     board[i][j + 1] == board[i][j + 2]) {
                 cells[combos] = board[i][j];
+                masks[combos].reset();
                 masks[combos][i * (w + 2) + j] = true;
                 masks[combos][i * (w + 2) + j + 1] = true;
                 masks[combos][i * (w + 2) + j + 2] = true;
                 combos++;
             }
-    for(unsigned i = 0; i + 2 < board.height(); i++)
-        for(unsigned j = 0; j < board.width(); j++)
+    for(unsigned j = 0; j < w; j++)
+        for(unsigned i = 0; i + 2 < h; i++)
             if(board[i][j] == board[i + 1][j] &&
                     board[i + 1][j] == board[i + 2][j]) {
                 cells[combos] = board[i][j];
+                masks[combos].reset();
                 masks[combos][i * (w + 2) + j] = true;
                 masks[combos][(i + 1) * (w + 2) + j] = true;
                 masks[combos][(i + 2) * (w + 2) + j] = true;
