@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <ncurses.h>
 #include <memory>
+#include <set>
+#include <utility>
 #include "combo.h"
 #include "idastar.h"
 
@@ -94,9 +96,12 @@ void wdisplay_graphics(WINDOW *window,
         const std::vector<direction_t> &directions) {
     werase(window);
 
+    std::set<std::pair<unsigned, unsigned>> set;
+    bool reliable = true;
     unsigned y = start_r * 2 + 1;
     unsigned x = start_c * 2 + 1;
     mvwaddch(window, y, x, ACS_BLOCK);
+    set.insert(std::make_pair(y, x));
     for(direction_t d : directions) {
         switch(d) {
             case direction_t::up:
@@ -117,10 +122,13 @@ void wdisplay_graphics(WINDOW *window,
                 break;
         }
         mvwaddch(window, y, x, ACS_BLOCK);
+        if(!set.insert(std::make_pair(y, x)).second)
+            reliable = false;
     }
 
     box(window, 0, 0);
-    mvwprintw(window, 0, 1, "unreliable");
+    if(!reliable)
+        mvwprintw(window, 0, 1, "unreliable");
 }
 
 namespace std {
